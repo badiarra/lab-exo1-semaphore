@@ -3,16 +3,16 @@
 #include "hcsr04/HC_SR04.h"
 
 //Les broches
-const int PIN_RED = 40;
-const int PIN_GREEN = 41;
-const int PIN_YELLOW = 42;
+const int PIN_RED = 4;
+const int PIN_GREEN = 5;
+const int PIN_YELLOW = 6;
 
-const int PIN_ECHO = 39;
-const int PIN_TRIG = 38;
+const int PIN_ECHO = 7;
+const int PIN_TRIG = 8;
 
-const int PIN_ENA = 1;
-const int PIN_IN1 =2;
-const int PIN_IN2 = 3;
+const int PIN_ENA = 9;
+const int PIN_IN1 =10;
+const int PIN_IN2 = 11;
 
 
 SemaphoreHandle_t distSemaphore = nullptr;
@@ -38,7 +38,7 @@ void vTaskMeasure( void* pvParam){
     distance = sensor.getDistance();
 
     if(distance < 20  && distance >= 0){
-      xSmaphoreTake(distSemaphore, 0)
+      xSemaphoreTake(distSemaphore, 0);
     } else if (distance >= 20 && distance < 40){
       xSemaphoreGive(distSemaphore);
     }
