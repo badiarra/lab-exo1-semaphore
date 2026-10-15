@@ -3,20 +3,23 @@
 #include "hcsr04/HC_SR04.h"
 
 //Les broches
-const int PIN_RED = 40;
-const int PIN_GREEN = 41;
-const int PIN_YELLOW = 42;
+const int PIN_RED = 4;
+const int PIN_GREEN = 5;
+const int PIN_YELLOW = 6;
 
-const int PIN_ECHO = 39;
-const int PIN_TRIG = 38;
+const int PIN_ECHO = 7;
+const int PIN_TRIG = 8;
 
-const int PIN_ENA = 1;
-const int PIN_IN1 =2;
-const int PIN_IN2 = 3;
+const int PIN_ENA = 9;
+const int PIN_IN1 =10;
+const int PIN_IN2 = 11;
 
 
 SemaphoreHandle_t distSemaphore = nullptr;
-TaskHandle_t ledHandle = nullptr;
+TaskHandle_t redHandle = nullptr;
+TaskHandle_t motorHandle = nullptr;
+TaskHandle_t yellowHandle = nullptr;
+TaskHandle_t greenHandle = nullptr;
 TaskHandle_t sensorHandle = nullptr;
 
 //Instances
@@ -38,13 +41,24 @@ void vTaskMeasure( void* pvParam){
     distance = sensor.getDistance();
 
     if(distance < 20  && distance >= 0){
-      xSmaphoreTake(distSemaphore, 0)
+      xSemaphoreTake(distSemaphore, 0);
     } else if (distance >= 20 && distance < 40){
       xSemaphoreGive(distSemaphore);
     }
       vTaskDelay(pdMS_TO_TICKS(100));
   }
 
+}
+void vTaskLed(void* ptr){
+
+  Led *led =(Led*)ptr;
+
+  while(true){
+
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+    led->on();
+  }
 }
 
 void vTaskMotor( void* pvParam){
@@ -57,20 +71,20 @@ void vTaskMotor( void* pvParam){
       ledYellow.off();
       ledRed.off();
 
-    coins = uxGetSemaphoreCount(distSemaphore);
+    coins = uxSemaphoreGetCount(distSemaphore);
 
     if(coins==3){
       rover.setSpeed(255);
-      ledGreen.on();
-      ledYellow.on();
-      ledRed.on();
+      xTaskNotifyGive(greenHandle);
+      xTaskNotifyGive(yellowHandle);
+      xTaskNotifyGive(redHandle);
     } else if (coins==2){
        rover.setSpeed(128);
-      ledYellow.on();
-      ledRed.on();
+       xTaskNotifyGive(yellowHandle);
+      xTaskNotifyGive(redHandle);
     } else if (coins==1){
        rover.setSpeed(64);
-      ledRed.on();
+     xTaskNotifyGive(redHandle);
     } else {
       rover.stop();
     }
@@ -111,11 +125,40 @@ void setup() {
         1024,
         nullptr,
         1,
-        &ledHandle
+        &motorHandle
     );
+
+     xTaskCreate(
+        vTaskLed,
+        "GREEN",
+        1024,
+        &ledGreen,
+        1,
+        &greenHandle
+    );
+
+
+     xTaskCreate(
+        vTaskLed,
+        "YELLOW",
+        1024,
+        &ledYellow,
+        1,
+        &yellowHandle
+    );
+
+
+     xTaskCreate(
+        vTaskLed,
+        "RED",
+        1024,
+        &ledRed,
+        1,
+        &redHandle
+    );
+
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 }
