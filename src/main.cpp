@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "led/Led.h"
 #include "hcsr04/HC_SR04.h"
+#include "motor/motor.h"
 
 //Les broches
 const int PIN_RED = 4;
@@ -113,7 +114,7 @@ void setup() {
     xTaskCreate(
         vTaskMeasure,
         "Measure",
-        1024,
+        4096,
         nullptr,
         2,
         &sensorHandle
@@ -122,7 +123,7 @@ void setup() {
     xTaskCreate(
         vTaskMotor,
         "Rover",
-        1024,
+        4096,
         nullptr,
         1,
         &motorHandle
@@ -131,7 +132,7 @@ void setup() {
      xTaskCreate(
         vTaskLed,
         "GREEN",
-        1024,
+        4096,
         &ledGreen,
         1,
         &greenHandle
@@ -141,7 +142,7 @@ void setup() {
      xTaskCreate(
         vTaskLed,
         "YELLOW",
-        1024,
+        4096,
         &ledYellow,
         1,
         &yellowHandle
@@ -151,7 +152,7 @@ void setup() {
      xTaskCreate(
         vTaskLed,
         "RED",
-        1024,
+        4096,
         &ledRed,
         1,
         &redHandle
