@@ -1,11 +1,12 @@
 #include <Arduino.h>
 #include "led/Led.h"
 #include "hcsr04/HC_SR04.h"
+#include "motor/motor.h"
 
 //Les broches
-const int PIN_RED = 4;
-const int PIN_GREEN = 5;
-const int PIN_YELLOW = 6;
+const int PIN_RED = 40;
+const int PIN_GREEN = 41;
+const int PIN_YELLOW = 42;
 
 const int PIN_ECHO = 7;
 const int PIN_TRIG = 8;
@@ -42,7 +43,7 @@ void vTaskMeasure( void* pvParam){
     } else if (distance >= 20 && distance < 40){
       xSemaphoreGive(distSemaphore);
     }
-      vTaskDelay(pdMS_TO_TICKS(100));
+      vTaskDelay(pdMS_TO_TICKS(100));    // Augmenter le delai pour mieux voir l'effet
   }
 
 }
@@ -57,7 +58,7 @@ void vTaskMotor( void* pvParam){
       ledYellow.off();
       ledRed.off();
 
-    coins = uxGetSemaphoreCount(distSemaphore);
+    coins = uxSemaphoreGetCount(distSemaphore);
 
     if(coins==3){
       rover.setSpeed(255);
@@ -75,7 +76,7 @@ void vTaskMotor( void* pvParam){
       rover.stop();
     }
   
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(100)); //Tester differents delais ici aussi
   }
 }
 
@@ -99,7 +100,7 @@ void setup() {
     xTaskCreate(
         vTaskMeasure,
         "Measure",
-        1024,
+        4096,
         nullptr,
         2,
         &sensorHandle
@@ -108,7 +109,7 @@ void setup() {
     xTaskCreate(
         vTaskMotor,
         "Rover",
-        1024,
+        4096,
         nullptr,
         1,
         &ledHandle

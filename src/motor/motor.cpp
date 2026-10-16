@@ -1,3 +1,5 @@
+#include "motor.h"
+
 Motor::Motor(int ENA, int IN1, int IN2){
     enable = ENA;
     input_1 = IN1;
@@ -14,7 +16,7 @@ void Motor::init(){
      analogWrite(enable,0);
 }
 
-void setSpeed(float value){
+void Motor::setSpeed(float value){
     digitalWrite(input_1, HIGH);
     digitalWrite(input_2, LOW);
     analogWrite(enable, constrain(value, 0, 255));

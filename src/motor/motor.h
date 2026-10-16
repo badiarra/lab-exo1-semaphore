@@ -1,6 +1,8 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
+#include <Arduino.h>
+
 class Motor {
     public:
         Motor(int ENA, int IN1, int IN2);
